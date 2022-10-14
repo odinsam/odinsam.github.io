@@ -1,0 +1,20 @@
+User-agent: * 
+Allow: /
+Allow: /2021/
+Allow: /about/
+Allow: /archives/
+Allow: /categories/
+Allow: /links/
+Allow: /repository/
+Allow: /tags/
+
+Disallow: /css/
+Disallow: /fonts/
+Disallow: /images/
+Disallow: /js/
+Disallow: /categories/
+Disallow: /categories/
+
+
+Sitemap: https://www.odinsam.com/sitemap.xml
+Sitemap: https://www.odinsam.com/baidusitemap.xml
