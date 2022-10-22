@@ -12,6 +12,8 @@ Disallow: /css/
 Disallow: /fonts/
 Disallow: /images/
 Disallow: /js/
+Disallow: /categories/
+Disallow: /categories/
 
 
 Sitemap: https://www.odinsam.com/sitemap.xml
