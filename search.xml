@@ -45,12 +45,16 @@
     <title>Flutter - OdinDio 基于Dio的封装</title>
     <url>//articles/ddf4.html</url>
     <content><![CDATA[<blockquote>
-<p>Dio是Flutter中较为流行的http操作类。 OdinDio基于Dio封装。完整代码可以在 <a href="https://github.com/odinsam/OdinPlugin/tree/feature/1.0.0/odindio">GitHub</a> 。</p>
+<p>Dio是Flutter中较为流行的http操作类。 OdinDio基于Dio封装,完整代码可以在 <a href="https://github.com/odinsam/OdinPlugin/tree/feature/1.0.0/odindio">GitHub</a> 。</p>
 </blockquote>
 <span id="more"></span>
 <h4 id="odindio"><a class="markdownIt-Anchor" href="#odindio"></a> OdinDio</h4>
-<p>OdinDio单例模式，基于dio封装。</p>
-<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&#x27;dart:convert&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:dio/dio.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:flutter_test/flutter_test.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:odindio/odin_dio_interceptor.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:odindio/odindio.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:odindio/odindio_platform_interface.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:odindio/odindio_method_channel.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:plugin_platform_interface/plugin_platform_interface.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;models/post_model.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;models/student_model.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;models/ten_model.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;models/test_model.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:path/path.dart&#x27;</span> <span class="keyword">as</span> path;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;dart:io&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;odindio_test.reflectable.dart&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MockOdindioPlatform</span></span></span><br><span class="line"><span class="class">    <span class="title">with</span> <span class="title">MockPlatformInterfaceMixin</span></span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">OdindioPlatform</span> </span>&#123;</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Future&lt;<span class="built_in">String?</span>&gt; getPlatformVersion() =&gt; Future.value(<span class="string">&#x27;42&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// <span class="markdown">多请求</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MultiRequest</span> </span>&#123;</span><br><span class="line">  <span class="keyword">static</span> Future&lt;Response&lt;<span class="built_in">dynamic</span>&gt;&gt; req1&lt;T&gt;() <span class="keyword">async</span> &#123;</span><br><span class="line">    OdinDio odindioPlugin = OdinDio();</span><br><span class="line">    odindioPlugin.setBaseUrl(<span class="string">&quot;http://httpbin.org&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> odindioPlugin.<span class="keyword">get</span>(<span class="string">&#x27;/json&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> Future&lt;Response&lt;<span class="built_in">dynamic</span>&gt;&gt; req2&lt;T&gt;() <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> odindioPlugin = OdinDio();</span><br><span class="line">    odindioPlugin.setBaseUrl(<span class="string">&quot;http://tenapi.cn&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> odindioPlugin.<span class="keyword">get</span>(<span class="string">&#x27;/acg&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> main() &#123;</span><br><span class="line">  initializeReflectable();</span><br><span class="line">  <span class="keyword">final</span> OdindioPlatform initialPlatform = OdindioPlatform.instance;</span><br><span class="line"></span><br><span class="line">  test(<span class="string">&#x27;<span class="subst">$MethodChannelOdindio</span> is the default instance&#x27;</span>, () &#123;</span><br><span class="line">    expect(initialPlatform, isInstanceOf&lt;MethodChannelOdindio&gt;());</span><br><span class="line">  &#125;);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/// <span class="markdown">get request return Model </span></span></span><br><span class="line">  test(<span class="string">&#x27;getJson-1&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// getJson no param</span></span><br><span class="line">    OdinDio odindioPlugin = OdinDio();</span><br><span class="line">    odindioPlugin.setBaseUrl(<span class="string">&quot;http://httpbin.org&quot;</span>);</span><br><span class="line">    odindioPlugin.removeDioLog();</span><br><span class="line">    <span class="comment">//定义拦截器</span></span><br><span class="line">    <span class="keyword">var</span> odi1 = OdinDioInterceptor(onRequestHandler: (request, handler) &#123;</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;onRequestHandler1&quot;</span>);</span><br><span class="line">    &#125;, onResponseHandler: (response, handler) &#123;</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;onResponseHandler1&quot;</span>);</span><br><span class="line">    &#125;, onErrorHandler: (err, handler) &#123;</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;err1&quot;</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">var</span> odi2 = OdinDioInterceptor(onRequestHandler: (request, handler) &#123;</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;onRequestHandler2&quot;</span>);</span><br><span class="line">    &#125;, onResponseHandler: (response, handler) &#123;</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;onResponseHandler2&quot;</span>);</span><br><span class="line">    &#125;, onErrorHandler: (err, handler) &#123;</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;err2&quot;</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="comment">//添加拦截器</span></span><br><span class="line">    odindioPlugin.interceptors().addAll([odi1, odi2]);</span><br><span class="line">    <span class="comment">//移除拦截器</span></span><br><span class="line">    odindioPlugin.interceptors().remove(odi1);</span><br><span class="line">    <span class="keyword">var</span> model = <span class="keyword">await</span> odindioPlugin.getModel&lt;TestModel&gt;(<span class="string">&#x27;/json&#x27;</span>);</span><br><span class="line">    <span class="built_in">print</span>(json.encode(model));</span><br><span class="line">    <span class="comment">// expect(model.slideshow!.title, &#x27;Sample Slide Show&#x27;);</span></span><br><span class="line">  &#125;);</span><br><span class="line">	</span><br><span class="line">  <span class="comment">/// <span class="markdown">get request return Model List</span></span></span><br><span class="line">  test(<span class="string">&#x27;getJson-2&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// getJson no param</span></span><br><span class="line">    OdinDio odindioPlugin = OdinDio();</span><br><span class="line">    odindioPlugin.removeDioLog();</span><br><span class="line">    odindioPlugin.addDioLog();</span><br><span class="line">    odindioPlugin.setBaseUrl(<span class="string">&quot;http://192.168.1.145:8899&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> models = <span class="keyword">await</span> odindioPlugin.getModels&lt;StudentModel&gt;(<span class="string">&#x27;/stus&#x27;</span>);</span><br><span class="line">    <span class="built_in">print</span>(json.encode(models));</span><br><span class="line">    expect(models.length, greaterThan(<span class="number">0</span>));</span><br><span class="line">  &#125;);</span><br><span class="line">	</span><br><span class="line">  <span class="comment">/// <span class="markdown">get request by queryParameters return Model List</span></span></span><br><span class="line">  test(<span class="string">&#x27;getJson-3&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// getJson with params</span></span><br><span class="line">    <span class="keyword">var</span> odinDioPlugin = OdinDio();</span><br><span class="line">    odinDioPlugin.setBaseUrl(<span class="string">&quot;https://tenapi.cn&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> model = <span class="keyword">await</span> odinDioPlugin.getModel&lt;TenModel&gt;(<span class="string">&quot;/qqname&quot;</span>,</span><br><span class="line">        queryParameters: &#123;<span class="string">&quot;qq&quot;</span>: <span class="string">&quot;123456&quot;</span>&#125;,</span><br><span class="line">        options: Options(responseType: ResponseType.json));</span><br><span class="line">    <span class="built_in">print</span>(json.encode(model));</span><br><span class="line">    expect(model.name, <span class="string">&#x27;腾讯视频&#x27;</span>);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// <span class="markdown">get request by Stream</span></span></span><br><span class="line">  test(<span class="string">&#x27;getStream&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// get stream</span></span><br><span class="line">    <span class="keyword">var</span> odinDioPlugin = OdinDio();</span><br><span class="line">    odinDioPlugin.setBaseUrl(<span class="string">&quot;http://192.168.1.145:8899&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> stream = <span class="keyword">await</span> odinDioPlugin.getStream(<span class="string">&#x27;/stream&#x27;</span>);</span><br><span class="line">    <span class="keyword">var</span> lst = &lt;<span class="built_in">int</span>&gt;[];</span><br><span class="line">    <span class="keyword">var</span> bytes = <span class="keyword">await</span> stream.first;</span><br><span class="line">    lst = <span class="built_in">List</span>.from(bytes.toList());</span><br><span class="line">    <span class="built_in">print</span>(utf8.decode(lst));</span><br><span class="line">    expect(utf8.decode(lst).length, greaterThan(<span class="number">0</span>));</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// <span class="markdown">get request return Bytes(List<span class="xml"><span class="tag">&lt;<span class="name">int</span>&gt;</span></span>)</span></span></span><br><span class="line">  test(<span class="string">&#x27;getBytes&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// get Bytes</span></span><br><span class="line">    <span class="keyword">var</span> odinDioPlugin = OdinDio();</span><br><span class="line">    odinDioPlugin.setBaseUrl(<span class="string">&quot;http://192.168.1.145:8899&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> lst = <span class="keyword">await</span> odinDioPlugin.getBytes(<span class="string">&#x27;/stream&#x27;</span>);</span><br><span class="line">    <span class="built_in">print</span>(utf8.decode(lst));</span><br><span class="line">    expect(utf8.decode(lst).length, greaterThan(<span class="number">0</span>));</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// <span class="markdown">post request return Model</span></span></span><br><span class="line">  test(<span class="string">&#x27;postStu&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// post with param and return Json</span></span><br><span class="line">    <span class="keyword">var</span> odinDioPlugin = OdinDio();</span><br><span class="line">    odinDioPlugin.setBaseUrl(<span class="string">&quot;http://192.168.1.145:8899&quot;</span>);</span><br><span class="line">    odinDioPlugin.removeDioLog();</span><br><span class="line">    <span class="keyword">var</span> data = odinDioPlugin.dataToFormData(&#123;<span class="string">&quot;name&quot;</span>: <span class="string">&quot;bakabaka&quot;</span>&#125;);</span><br><span class="line">    <span class="keyword">var</span> response5 = <span class="keyword">await</span> odinDioPlugin.post(<span class="string">&#x27;/postStu&#x27;</span>,</span><br><span class="line">        data: data, options: Options(headers: &#123;<span class="string">&quot;customNewPost&quot;</span>: <span class="string">&quot;newPost&quot;</span>&#125;));</span><br><span class="line">    <span class="keyword">var</span> model = odinDioPlugin.dioResultToModel&lt;PostModel&gt;(response5.data);</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;model: <span class="subst">$&#123;json.encode(model)&#125;</span>&quot;</span>);</span><br><span class="line">    expect(model.code, <span class="number">0</span>);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// <span class="markdown">multirequest</span></span></span><br><span class="line">  test(<span class="string">&#x27;multirequest&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> odinDioPlugin = OdinDio();</span><br><span class="line">    <span class="keyword">var</span> response6 = <span class="keyword">await</span> odinDioPlugin</span><br><span class="line">        .multiRequest([MultiRequest.req1(), MultiRequest.req2()]);</span><br><span class="line">    <span class="keyword">var</span> rep1 = response6[<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">var</span> rep1model = odinDioPlugin.dioResultToModel&lt;TestModel&gt;(rep1.data);</span><br><span class="line">    <span class="built_in">print</span>(json.encode(rep1model));</span><br><span class="line">    expect(rep1model.slideshow!.author, <span class="string">&quot;Yours Truly&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> rep2 = response6[<span class="number">1</span>];</span><br><span class="line">    <span class="built_in">print</span>(json.encode(rep2.data.length));</span><br><span class="line">    expect(rep2.data!.length, greaterThan(<span class="number">0</span>));</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// <span class="markdown">downloadFile</span></span></span><br><span class="line">  test(<span class="string">&#x27;downloadFile&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="built_in">double</span> currentProgress = <span class="number">0.0</span>;</span><br><span class="line">    <span class="keyword">var</span> odinDioPlugin = OdinDio();</span><br><span class="line">    odinDioPlugin.setBaseUrl(<span class="string">&quot;http://192.168.1.145:8899&quot;</span>);</span><br><span class="line">    <span class="keyword">final</span> cur = path.dirname(Platform.script.path).substring(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">var</span> savePath = path.join(cur, <span class="string">&#x27;download.txt&#x27;</span>);</span><br><span class="line">    <span class="keyword">var</span> response7 = <span class="keyword">await</span> odinDioPlugin.downloadFile(</span><br><span class="line">        <span class="string">&#x27;/static/output.txt&#x27;</span>, savePath, onReceiveProgress: (received, total) &#123;</span><br><span class="line">      <span class="keyword">if</span> (total != <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="comment">///<span class="markdown">当前下载的百分比例</span></span></span><br><span class="line">        <span class="keyword">var</span> downloadRatio = (received / total * <span class="number">100</span>).toStringAsFixed(<span class="number">0</span>);</span><br><span class="line">        currentProgress = received / total;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">var</span> f = File(savePath);</span><br><span class="line">    expect(f.readAsStringSync(), equals(<span class="string">&#x27;I am a text file&#x27;</span>));</span><br><span class="line">    f.deleteSync(recursive: <span class="keyword">false</span>);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// <span class="markdown">upload file</span></span></span><br><span class="line">  test(<span class="string">&#x27;uploadFile&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> odinDioPlugin = OdinDio();</span><br><span class="line">    <span class="keyword">final</span> cur = path.dirname(Platform.script.path).substring(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">var</span> uploadFile1 = path.join(cur, <span class="string">&#x27;upload1.txt&#x27;</span>);</span><br><span class="line">    <span class="keyword">var</span> uploadFile2 = path.join(cur, <span class="string">&#x27;upload2.txt&#x27;</span>);</span><br><span class="line">    <span class="keyword">var</span> uploadFile3 = path.join(cur, <span class="string">&#x27;upload3.txt&#x27;</span>);</span><br><span class="line">    <span class="keyword">var</span> formData = odinDioPlugin.dataToFormData(&#123;</span><br><span class="line">      <span class="string">&#x27;name&#x27;</span>: <span class="string">&#x27;wendux&#x27;</span>,</span><br><span class="line">      <span class="string">&#x27;age&#x27;</span>: <span class="number">25</span>,</span><br><span class="line">      <span class="string">&#x27;file&#x27;</span>:</span><br><span class="line">          <span class="keyword">await</span> MultipartFile.fromFile(uploadFile1, filename: <span class="string">&#x27;upload1.txt&#x27;</span>),</span><br><span class="line">      <span class="string">&#x27;files&#x27;</span>: [</span><br><span class="line">        <span class="keyword">await</span> MultipartFile.fromFile(uploadFile2, filename: <span class="string">&#x27;upload2.txt&#x27;</span>),</span><br><span class="line">        <span class="keyword">await</span> MultipartFile.fromFile(uploadFile3, filename: <span class="string">&#x27;upload3.txt&#x27;</span>),</span><br><span class="line">      ]</span><br><span class="line">    &#125;);</span><br><span class="line">    odinDioPlugin.setBaseUrl(<span class="string">&quot;http://192.168.1.145:8899&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> response6 = <span class="keyword">await</span> odinDioPlugin.post(<span class="string">&#x27;/upload&#x27;</span>, data: formData);</span><br><span class="line">    <span class="built_in">print</span>(response6.data);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// <span class="markdown">post stream data</span></span></span><br><span class="line">  test(<span class="string">&#x27;post stream data&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> odinDioPlugin = OdinDio();</span><br><span class="line">    <span class="keyword">var</span> formData = &#123;<span class="string">&#x27;name&#x27;</span>: <span class="string">&#x27;wendux&#x27;</span>, <span class="string">&#x27;age&#x27;</span>: <span class="number">25</span>&#125;;</span><br><span class="line">    <span class="keyword">var</span> lst = utf8.encode(formData.toString());</span><br><span class="line">    odinDioPlugin.setBaseUrl(<span class="string">&quot;http://192.168.1.145:8899&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> response6 = <span class="keyword">await</span> odinDioPlugin.postDataByStream(<span class="string">&#x27;/stu&#x27;</span>,</span><br><span class="line">        data: odinDioPlugin.listIntToStreamFormData(lst),</span><br><span class="line">        options: Options(headers: &#123;</span><br><span class="line">          Headers.contentLengthHeader: lst.length, <span class="comment">// 设置content-length</span></span><br><span class="line">        &#125;));</span><br><span class="line">    <span class="built_in">print</span>(response6.data);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// <span class="markdown">完成和终止请求/响应</span></span></span><br><span class="line">  test(<span class="string">&#x27;resolve&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// getJson no param</span></span><br><span class="line">    <span class="keyword">var</span> odinDioPlugin = OdinDio();</span><br><span class="line">    odinDioPlugin.setBaseUrl(<span class="string">&quot;http://httpbin.org&quot;</span>);</span><br><span class="line">    <span class="comment">//定义拦截器</span></span><br><span class="line">    <span class="keyword">var</span> odi1 = OdinDioInterceptor(onRequestHandler: (request, handler) &#123;</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;onRequestHandler1&quot;</span>);</span><br><span class="line">      <span class="keyword">return</span> handler</span><br><span class="line">          .resolve(Response(requestOptions: request, data: <span class="string">&#x27;fake data&#x27;</span>));</span><br><span class="line">    &#125;, onResponseHandler: (response, handler) &#123;</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;onResponseHandler1&quot;</span>);</span><br><span class="line">    &#125;, onErrorHandler: (err, handler) &#123;</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;err1&quot;</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    odinDioPlugin.interceptors().add(odi1);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">var</span> model = <span class="keyword">await</span> odinDioPlugin.<span class="keyword">get</span>(<span class="string">&#x27;/json&#x27;</span>);</span><br><span class="line">    &#125; <span class="keyword">on</span> DioError <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">      <span class="keyword">if</span> (e.response != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="built_in">print</span>(e.response!.data);</span><br><span class="line">        <span class="built_in">print</span>(e.response!.headers);</span><br><span class="line">        <span class="built_in">print</span>(e.response!.requestOptions);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// Something happened in setting up or sending the request that triggered an Error</span></span><br><span class="line">        <span class="built_in">print</span>(e.requestOptions);</span><br><span class="line">        <span class="built_in">print</span>(e.message);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// expect(model.slideshow!.title, &#x27;Sample Slide Show&#x27;);</span></span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
+<p><img src="https://img.shields.io/badge/Plateform-ios%7Candroid%7Cwindws%7Clinux-greenyellow" alt="Platform"> <img src="https://img.shields.io/badge/pub.dev-1.0.1-greenyellow" alt="OdinDio"><br>
+OdinDio单例模式，基于dio封装。</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">pubspec.yaml</span></span><br><span class="line">  <span class="attr">dependencies:</span></span><br><span class="line">    <span class="attr">json_annotation:</span> <span class="string">^4.4.0</span></span><br><span class="line">    <span class="attr">odindio:</span> <span class="string">^1.0.1</span></span><br><span class="line">  <span class="attr">dev_dependencies:</span></span><br><span class="line">    <span class="attr">json_serializable:</span> <span class="string">^6.2.0</span></span><br><span class="line">    <span class="attr">build_runner:</span> <span class="string">any</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&#x27;dart:convert&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:dio/dio.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:flutter_test/flutter_test.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:odindio/odin_dio_interceptor.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:odindio/odindio.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:odindio/odindio_platform_interface.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:odindio/odindio_method_channel.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:plugin_platform_interface/plugin_platform_interface.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;models/post_model.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;models/student_model.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;models/ten_model.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;models/test_model.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:path/path.dart&#x27;</span> <span class="keyword">as</span> path;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;dart:io&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;odindio_test.reflectable.dart&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MockOdindioPlatform</span></span></span><br><span class="line"><span class="class">    <span class="title">with</span> <span class="title">MockPlatformInterfaceMixin</span></span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">OdindioPlatform</span> </span>&#123;</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Future&lt;<span class="built_in">String?</span>&gt; getPlatformVersion() =&gt; Future.value(<span class="string">&#x27;42&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// <span class="markdown">多请求</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MultiRequest</span> </span>&#123;</span><br><span class="line">  <span class="keyword">static</span> Future&lt;Response&lt;<span class="built_in">dynamic</span>&gt;&gt; req1&lt;T&gt;() <span class="keyword">async</span> &#123;</span><br><span class="line">    OdinDio odindioPlugin = OdinDio();</span><br><span class="line">    odindioPlugin.setBaseUrl(<span class="string">&quot;http://httpbin.org&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> odindioPlugin.<span class="keyword">get</span>(<span class="string">&#x27;/json&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> Future&lt;Response&lt;<span class="built_in">dynamic</span>&gt;&gt; req2&lt;T&gt;() <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> odindioPlugin = OdinDio();</span><br><span class="line">    odindioPlugin.setBaseUrl(<span class="string">&quot;http://tenapi.cn&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> odindioPlugin.<span class="keyword">get</span>(<span class="string">&#x27;/acg&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> main() &#123;</span><br><span class="line">  initializeReflectable();</span><br><span class="line">  <span class="keyword">final</span> OdindioPlatform initialPlatform = OdindioPlatform.instance;</span><br><span class="line"></span><br><span class="line">  test(<span class="string">&#x27;<span class="subst">$MethodChannelOdindio</span> is the default instance&#x27;</span>, () &#123;</span><br><span class="line">    expect(initialPlatform, isInstanceOf&lt;MethodChannelOdindio&gt;());</span><br><span class="line">  &#125;);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/// <span class="markdown">get request return Model </span></span></span><br><span class="line">  test(<span class="string">&#x27;getJson-1&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// getJson no param</span></span><br><span class="line">    OdinDio odindioPlugin = OdinDio();</span><br><span class="line">    odindioPlugin.setBaseUrl(<span class="string">&quot;http://httpbin.org&quot;</span>);</span><br><span class="line">    odindioPlugin.removeDioLog();</span><br><span class="line">    <span class="comment">//定义拦截器</span></span><br><span class="line">    <span class="keyword">var</span> odi1 = OdinDioInterceptor(onRequestHandler: (request, handler) &#123;</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;onRequestHandler1&quot;</span>);</span><br><span class="line">    &#125;, onResponseHandler: (response, handler) &#123;</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;onResponseHandler1&quot;</span>);</span><br><span class="line">    &#125;, onErrorHandler: (err, handler) &#123;</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;err1&quot;</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">var</span> odi2 = OdinDioInterceptor(onRequestHandler: (request, handler) &#123;</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;onRequestHandler2&quot;</span>);</span><br><span class="line">    &#125;, onResponseHandler: (response, handler) &#123;</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;onResponseHandler2&quot;</span>);</span><br><span class="line">    &#125;, onErrorHandler: (err, handler) &#123;</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;err2&quot;</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="comment">//添加拦截器</span></span><br><span class="line">    odindioPlugin.interceptors().addAll([odi1, odi2]);</span><br><span class="line">    <span class="comment">//移除拦截器</span></span><br><span class="line">    odindioPlugin.interceptors().remove(odi1);</span><br><span class="line">    <span class="keyword">var</span> model = <span class="keyword">await</span> odindioPlugin.getModel&lt;TestModel&gt;(<span class="string">&#x27;/json&#x27;</span>);</span><br><span class="line">    <span class="built_in">print</span>(json.encode(model));</span><br><span class="line">    <span class="comment">// expect(model.slideshow!.title, &#x27;Sample Slide Show&#x27;);</span></span><br><span class="line">  &#125;);</span><br><span class="line">	</span><br><span class="line">  <span class="comment">/// <span class="markdown">get request return Model List</span></span></span><br><span class="line">  test(<span class="string">&#x27;getJson-2&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// getJson no param</span></span><br><span class="line">    OdinDio odindioPlugin = OdinDio();</span><br><span class="line">    odindioPlugin.removeDioLog();</span><br><span class="line">    odindioPlugin.addDioLog();</span><br><span class="line">    odindioPlugin.setBaseUrl(<span class="string">&quot;http://192.168.1.145:8899&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> models = <span class="keyword">await</span> odindioPlugin.getModels&lt;StudentModel&gt;(<span class="string">&#x27;/stus&#x27;</span>);</span><br><span class="line">    <span class="built_in">print</span>(json.encode(models));</span><br><span class="line">    expect(models.length, greaterThan(<span class="number">0</span>));</span><br><span class="line">  &#125;);</span><br><span class="line">	</span><br><span class="line">  <span class="comment">/// <span class="markdown">get request by queryParameters return Model List</span></span></span><br><span class="line">  test(<span class="string">&#x27;getJson-3&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// getJson with params</span></span><br><span class="line">    <span class="keyword">var</span> odinDioPlugin = OdinDio();</span><br><span class="line">    odinDioPlugin.setBaseUrl(<span class="string">&quot;https://tenapi.cn&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> model = <span class="keyword">await</span> odinDioPlugin.getModel&lt;TenModel&gt;(<span class="string">&quot;/qqname&quot;</span>,</span><br><span class="line">        queryParameters: &#123;<span class="string">&quot;qq&quot;</span>: <span class="string">&quot;123456&quot;</span>&#125;,</span><br><span class="line">        options: Options(responseType: ResponseType.json));</span><br><span class="line">    <span class="built_in">print</span>(json.encode(model));</span><br><span class="line">    expect(model.name, <span class="string">&#x27;腾讯视频&#x27;</span>);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// <span class="markdown">get request by Stream</span></span></span><br><span class="line">  test(<span class="string">&#x27;getStream&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// get stream</span></span><br><span class="line">    <span class="keyword">var</span> odinDioPlugin = OdinDio();</span><br><span class="line">    odinDioPlugin.setBaseUrl(<span class="string">&quot;http://192.168.1.145:8899&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> stream = <span class="keyword">await</span> odinDioPlugin.getStream(<span class="string">&#x27;/stream&#x27;</span>);</span><br><span class="line">    <span class="keyword">var</span> lst = &lt;<span class="built_in">int</span>&gt;[];</span><br><span class="line">    <span class="keyword">var</span> bytes = <span class="keyword">await</span> stream.first;</span><br><span class="line">    lst = <span class="built_in">List</span>.from(bytes.toList());</span><br><span class="line">    <span class="built_in">print</span>(utf8.decode(lst));</span><br><span class="line">    expect(utf8.decode(lst).length, greaterThan(<span class="number">0</span>));</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// <span class="markdown">get request return Bytes(List<span class="xml"><span class="tag">&lt;<span class="name">int</span>&gt;</span></span>)</span></span></span><br><span class="line">  test(<span class="string">&#x27;getBytes&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// get Bytes</span></span><br><span class="line">    <span class="keyword">var</span> odinDioPlugin = OdinDio();</span><br><span class="line">    odinDioPlugin.setBaseUrl(<span class="string">&quot;http://192.168.1.145:8899&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> lst = <span class="keyword">await</span> odinDioPlugin.getBytes(<span class="string">&#x27;/stream&#x27;</span>);</span><br><span class="line">    <span class="built_in">print</span>(utf8.decode(lst));</span><br><span class="line">    expect(utf8.decode(lst).length, greaterThan(<span class="number">0</span>));</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// <span class="markdown">post request return Model</span></span></span><br><span class="line">  test(<span class="string">&#x27;postStu&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// post with param and return Json</span></span><br><span class="line">    <span class="keyword">var</span> odinDioPlugin = OdinDio();</span><br><span class="line">    odinDioPlugin.setBaseUrl(<span class="string">&quot;http://192.168.1.145:8899&quot;</span>);</span><br><span class="line">    odinDioPlugin.removeDioLog();</span><br><span class="line">    <span class="keyword">var</span> data = odinDioPlugin.dataToFormData(&#123;<span class="string">&quot;name&quot;</span>: <span class="string">&quot;bakabaka&quot;</span>&#125;);</span><br><span class="line">    <span class="keyword">var</span> response5 = <span class="keyword">await</span> odinDioPlugin.post(<span class="string">&#x27;/postStu&#x27;</span>,</span><br><span class="line">        data: data, options: Options(headers: &#123;<span class="string">&quot;customNewPost&quot;</span>: <span class="string">&quot;newPost&quot;</span>&#125;));</span><br><span class="line">    <span class="keyword">var</span> model = odinDioPlugin.dioResultToModel&lt;PostModel&gt;(response5.data);</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;model: <span class="subst">$&#123;json.encode(model)&#125;</span>&quot;</span>);</span><br><span class="line">    expect(model.code, <span class="number">0</span>);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// <span class="markdown">multirequest</span></span></span><br><span class="line">  test(<span class="string">&#x27;multirequest&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> odinDioPlugin = OdinDio();</span><br><span class="line">    <span class="keyword">var</span> response6 = <span class="keyword">await</span> odinDioPlugin</span><br><span class="line">        .multiRequest([MultiRequest.req1(), MultiRequest.req2()]);</span><br><span class="line">    <span class="keyword">var</span> rep1 = response6[<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">var</span> rep1model = odinDioPlugin.dioResultToModel&lt;TestModel&gt;(rep1.data);</span><br><span class="line">    <span class="built_in">print</span>(json.encode(rep1model));</span><br><span class="line">    expect(rep1model.slideshow!.author, <span class="string">&quot;Yours Truly&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> rep2 = response6[<span class="number">1</span>];</span><br><span class="line">    <span class="built_in">print</span>(json.encode(rep2.data.length));</span><br><span class="line">    expect(rep2.data!.length, greaterThan(<span class="number">0</span>));</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// <span class="markdown">downloadFile</span></span></span><br><span class="line">  test(<span class="string">&#x27;downloadFile&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="built_in">double</span> currentProgress = <span class="number">0.0</span>;</span><br><span class="line">    <span class="keyword">var</span> odinDioPlugin = OdinDio();</span><br><span class="line">    odinDioPlugin.setBaseUrl(<span class="string">&quot;http://192.168.1.145:8899&quot;</span>);</span><br><span class="line">    <span class="keyword">final</span> cur = path.dirname(Platform.script.path).substring(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">var</span> savePath = path.join(cur, <span class="string">&#x27;download.txt&#x27;</span>);</span><br><span class="line">    <span class="keyword">var</span> response7 = <span class="keyword">await</span> odinDioPlugin.downloadFile(</span><br><span class="line">        <span class="string">&#x27;/static/output.txt&#x27;</span>, savePath, onReceiveProgress: (received, total) &#123;</span><br><span class="line">      <span class="keyword">if</span> (total != <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="comment">///<span class="markdown">当前下载的百分比例</span></span></span><br><span class="line">        <span class="keyword">var</span> downloadRatio = (received / total * <span class="number">100</span>).toStringAsFixed(<span class="number">0</span>);</span><br><span class="line">        currentProgress = received / total;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">var</span> f = File(savePath);</span><br><span class="line">    expect(f.readAsStringSync(), equals(<span class="string">&#x27;I am a text file&#x27;</span>));</span><br><span class="line">    f.deleteSync(recursive: <span class="keyword">false</span>);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// <span class="markdown">upload file</span></span></span><br><span class="line">  test(<span class="string">&#x27;uploadFile&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> odinDioPlugin = OdinDio();</span><br><span class="line">    <span class="keyword">final</span> cur = path.dirname(Platform.script.path).substring(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">var</span> uploadFile1 = path.join(cur, <span class="string">&#x27;upload1.txt&#x27;</span>);</span><br><span class="line">    <span class="keyword">var</span> uploadFile2 = path.join(cur, <span class="string">&#x27;upload2.txt&#x27;</span>);</span><br><span class="line">    <span class="keyword">var</span> uploadFile3 = path.join(cur, <span class="string">&#x27;upload3.txt&#x27;</span>);</span><br><span class="line">    <span class="keyword">var</span> formData = odinDioPlugin.dataToFormData(&#123;</span><br><span class="line">      <span class="string">&#x27;name&#x27;</span>: <span class="string">&#x27;wendux&#x27;</span>,</span><br><span class="line">      <span class="string">&#x27;age&#x27;</span>: <span class="number">25</span>,</span><br><span class="line">      <span class="string">&#x27;file&#x27;</span>:</span><br><span class="line">          <span class="keyword">await</span> MultipartFile.fromFile(uploadFile1, filename: <span class="string">&#x27;upload1.txt&#x27;</span>),</span><br><span class="line">      <span class="string">&#x27;files&#x27;</span>: [</span><br><span class="line">        <span class="keyword">await</span> MultipartFile.fromFile(uploadFile2, filename: <span class="string">&#x27;upload2.txt&#x27;</span>),</span><br><span class="line">        <span class="keyword">await</span> MultipartFile.fromFile(uploadFile3, filename: <span class="string">&#x27;upload3.txt&#x27;</span>),</span><br><span class="line">      ]</span><br><span class="line">    &#125;);</span><br><span class="line">    odinDioPlugin.setBaseUrl(<span class="string">&quot;http://192.168.1.145:8899&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> response6 = <span class="keyword">await</span> odinDioPlugin.post(<span class="string">&#x27;/upload&#x27;</span>, data: formData);</span><br><span class="line">    <span class="built_in">print</span>(response6.data);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// <span class="markdown">post stream data</span></span></span><br><span class="line">  test(<span class="string">&#x27;post stream data&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> odinDioPlugin = OdinDio();</span><br><span class="line">    <span class="keyword">var</span> formData = &#123;<span class="string">&#x27;name&#x27;</span>: <span class="string">&#x27;wendux&#x27;</span>, <span class="string">&#x27;age&#x27;</span>: <span class="number">25</span>&#125;;</span><br><span class="line">    <span class="keyword">var</span> lst = utf8.encode(formData.toString());</span><br><span class="line">    odinDioPlugin.setBaseUrl(<span class="string">&quot;http://192.168.1.145:8899&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> response6 = <span class="keyword">await</span> odinDioPlugin.postDataByStream(<span class="string">&#x27;/stu&#x27;</span>,</span><br><span class="line">        data: odinDioPlugin.listIntToStreamFormData(lst),</span><br><span class="line">        options: Options(headers: &#123;</span><br><span class="line">          Headers.contentLengthHeader: lst.length, <span class="comment">// 设置content-length</span></span><br><span class="line">        &#125;));</span><br><span class="line">    <span class="built_in">print</span>(response6.data);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// <span class="markdown">完成和终止请求/响应</span></span></span><br><span class="line">  test(<span class="string">&#x27;resolve&#x27;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// getJson no param</span></span><br><span class="line">    <span class="keyword">var</span> odinDioPlugin = OdinDio();</span><br><span class="line">    odinDioPlugin.setBaseUrl(<span class="string">&quot;http://httpbin.org&quot;</span>);</span><br><span class="line">    <span class="comment">//定义拦截器</span></span><br><span class="line">    <span class="keyword">var</span> odi1 = OdinDioInterceptor(onRequestHandler: (request, handler) &#123;</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;onRequestHandler1&quot;</span>);</span><br><span class="line">      <span class="keyword">return</span> handler</span><br><span class="line">          .resolve(Response(requestOptions: request, data: <span class="string">&#x27;fake data&#x27;</span>));</span><br><span class="line">    &#125;, onResponseHandler: (response, handler) &#123;</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;onResponseHandler1&quot;</span>);</span><br><span class="line">    &#125;, onErrorHandler: (err, handler) &#123;</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;err1&quot;</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    odinDioPlugin.interceptors().add(odi1);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">var</span> model = <span class="keyword">await</span> odinDioPlugin.<span class="keyword">get</span>(<span class="string">&#x27;/json&#x27;</span>);</span><br><span class="line">    &#125; <span class="keyword">on</span> DioError <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">      <span class="keyword">if</span> (e.response != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="built_in">print</span>(e.response!.data);</span><br><span class="line">        <span class="built_in">print</span>(e.response!.headers);</span><br><span class="line">        <span class="built_in">print</span>(e.response!.requestOptions);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// Something happened in setting up or sending the request that triggered an Error</span></span><br><span class="line">        <span class="built_in">print</span>(e.requestOptions);</span><br><span class="line">        <span class="built_in">print</span>(e.message);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// expect(model.slideshow!.title, &#x27;Sample Slide Show&#x27;);</span></span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>pub.dev发布地址：<a href="https://pub.dev/packages/odindio">odinSam-Flutter - OdinDio封装</a></p>
+]]></content>
       <categories>
         <category>Flutter</category>
       </categories>
@@ -2488,6 +2492,350 @@ unmounted ==&gt; onUnmounted</li>
         <tag>微服务</tag>
         <tag>BackgroundService</tag>
         <tag>后台服务</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Flutter - Plugin发布</title>
+    <url>//articles/c804.html</url>
+    <content><![CDATA[<blockquote>
+<p>Flutter - Plugin发布</p>
+</blockquote>
+<span id="more"></span>
+<h4 id="plugin发布"><a class="markdownIt-Anchor" href="#plugin发布"></a> Plugin发布</h4>
+<ol>
+<li>执行 flutter pub publish --dry-run 检查是否具备发布条件</li>
+</ol>
+<p>遇到的问题1：</p>
+<p>It‘s strongly recommended to include a “homepage“ or “repository“ field</p>
+<p>解决方案：在 pubspec.yaml 中配置 主页 homepage 地址 :</p>
+<p>homepage: <a href="https://github.com/author/gitname.git">https://github.com/author/gitname.git</a></p>
+<ol start="2">
+<li>curl <a href="http://google.com">google.com</a> 检测终端代理是否成功连接google服务器</li>
+</ol>
+<p>export http_proxy=http://127.0.0.1:10818<br>
+export https_proxy=http://127.0.0.1:10818<br>
+仅能保证当前终端一次性连接成功</p>
+<ol start="3">
+<li>flutter packages pub publish --server=https://pub.dartlang.org 发布插件</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Flutter</category>
+      </categories>
+      <tags>
+        <tag>plugin</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Flutter - OdinUtils封装</title>
+    <url>//articles/eff3.html</url>
+    <content><![CDATA[<blockquote>
+<p>Flutter - OdinUtils封装 完整代码可以在 <a href="https://github.com/odinsam/OdinPlugin/tree/master/odinUtils">GitHub</a></p>
+</blockquote>
+<span id="more"></span>
+<h4 id="odinutils封装"><a class="markdownIt-Anchor" href="#odinutils封装"></a> OdinUtils封装</h4>
+<p><img src="https://img.shields.io/badge/Plateform-ios%7Candroid%7Cwindws%7Clinux-greenyellow" alt="Platform"> <img src="https://img.shields.io/badge/pub.dev-1.0.1-greenyellow" alt="OdinUtils"></p>
+<ol>
+<li>包引用</li>
+</ol>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">dependencies:</span></span><br><span class="line">  <span class="comment"># dart linq function</span></span><br><span class="line">  <span class="attr">flinq:</span> <span class="string">^2.0.2</span></span><br><span class="line">  <span class="comment"># dart crypto</span></span><br><span class="line">  <span class="attr">crypto:</span> <span class="string">^3.0.2</span> </span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>OdinUtils 扩展方法包括内容如下:</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">扩展类型</th>
+<th style="text-align:left">方法名称</th>
+<th style="text-align:left">方法描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">String</td>
+<td style="text-align:left">compareIgnoreCase</td>
+<td style="text-align:left">忽略大小写比较</td>
+</tr>
+<tr>
+<td style="text-align:left">String</td>
+<td style="text-align:left">isChinaCardId</td>
+<td style="text-align:left">判断中国身份号码格式</td>
+</tr>
+<tr>
+<td style="text-align:left">String</td>
+<td style="text-align:left">isChinaMobile</td>
+<td style="text-align:left">判断中国移动电话号码格式</td>
+</tr>
+<tr>
+<td style="text-align:left">String</td>
+<td style="text-align:left">isIpAddress</td>
+<td style="text-align:left">判断Ip地址格式</td>
+</tr>
+<tr>
+<td style="text-align:left">String</td>
+<td style="text-align:left">isEmail</td>
+<td style="text-align:left">判断邮箱地址格式</td>
+</tr>
+<tr>
+<td style="text-align:left">String</td>
+<td style="text-align:left">isUrl</td>
+<td style="text-align:left">判断url地址格式</td>
+</tr>
+<tr>
+<td style="text-align:left">String</td>
+<td style="text-align:left">toMd5</td>
+<td style="text-align:left">string进行md5加密</td>
+</tr>
+<tr>
+<td style="text-align:left">String</td>
+<td style="text-align:left">toSHA1</td>
+<td style="text-align:left">string进行SHA1加密</td>
+</tr>
+<tr>
+<td style="text-align:left">String</td>
+<td style="text-align:left">toCharList</td>
+<td style="text-align:left">转CharList List<String>类型</String></td>
+</tr>
+<tr>
+<td style="text-align:left">int</td>
+<td style="text-align:left">unixTimerToTimer</td>
+<td style="text-align:left">UnixTimer时间戳转DateTime</td>
+</tr>
+<tr>
+<td style="text-align:left">DatTime</td>
+<td style="text-align:left">toUnixTime</td>
+<td style="text-align:left">DateTime转UnixTimer时间戳</td>
+</tr>
+<tr>
+<td style="text-align:left">DatTime</td>
+<td style="text-align:left">减运算符 - 运算符重载</td>
+<td style="text-align:left">时间差</td>
+</tr>
+<tr>
+<td style="text-align:left">DatTime</td>
+<td style="text-align:left">isLeapYear</td>
+<td style="text-align:left">是否是闰年</td>
+</tr>
+<tr>
+<td style="text-align:left">Random</td>
+<td style="text-align:left">odinNextInt</td>
+<td style="text-align:left">随机 A-B 之间的int随机数</td>
+</tr>
+<tr>
+<td style="text-align:left">Random</td>
+<td style="text-align:left">odinNextDouble</td>
+<td style="text-align:left">随机 A-B 之间的double随机数</td>
+</tr>
+<tr>
+<td style="text-align:left">ParamsSignUtils</td>
+<td style="text-align:left">urlAddSign</td>
+<td style="text-align:left">url添加sign签名</td>
+</tr>
+<tr>
+<td style="text-align:left">ParamsSignUtils</td>
+<td style="text-align:left">validateSign</td>
+<td style="text-align:left">验证url sign签名 是否正确</td>
+</tr>
+<tr>
+<td style="text-align:left">ParamsSignUtils</td>
+<td style="text-align:left">createUrlSign</td>
+<td style="text-align:left">创建 sign签名 是否正确</td>
+</tr>
+</tbody>
+</table>
+<ol start="3">
+<li>OdinUtils Utils方法包括内容如下:</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">工具类类型</th>
+<th style="text-align:left">方法名称</th>
+<th style="text-align:left">方法描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">String</td>
+<td style="text-align:left">OdinStringUtils.generationCode</td>
+<td style="text-align:left">按长度生成对应的字符串</td>
+</tr>
+<tr>
+<td style="text-align:left">String</td>
+<td style="text-align:left">OdinStringUtils.generationLimpidCode</td>
+<td style="text-align:left">按长度生成对应的字符串，不包含 0 o 1 I 等容易混淆的之母和数字</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinAlgorithm</td>
+<td style="text-align:left">OdinAlgorithm.getRandomListByWeight</td>
+<td style="text-align:left">按权重返回对应需要个数的数组</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinRandomUtils</td>
+<td style="text-align:left">OdinRandomUtils.createRandom</td>
+<td style="text-align:left">创建random随机对象</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinTransformUtils</td>
+<td style="text-align:left">OdinTransformUtils.convertNumberToChineseMoneyWords</td>
+<td style="text-align:left">数字转人民币大写</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinTransformUtils</td>
+<td style="text-align:left">OdinTransformUtils.convertNumberToChineseNumber</td>
+<td style="text-align:left">数字转中文大写</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinTransformUtils</td>
+<td style="text-align:left">OdinTransformUtils.convertDateToChineseDate</td>
+<td style="text-align:left">日期转中文大写</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).chineseCalendarHoliday</td>
+<td style="text-align:left">计算中国农历节日</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).weekDayHoliday</td>
+<td style="text-align:left">按某月第几周第几日计算的节日</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).dateHoliday</td>
+<td style="text-align:left">按公历日计算的节日</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).weekDayStr</td>
+<td style="text-align:left">周几的字符</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).dateString</td>
+<td style="text-align:left">公历日期中文表示法 如一九九七年七月一日</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).isLeapYear</td>
+<td style="text-align:left">当前是否公历闰年</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).chineseConstellation</td>
+<td style="text-align:left">28星宿计算</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).chineseHour</td>
+<td style="text-align:left">时辰</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).isChineseLeapMonth</td>
+<td style="text-align:left">是否闰月</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).isChineseLeapYear</td>
+<td style="text-align:left">当年是否有闰月</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).chineseDay</td>
+<td style="text-align:left">农历日</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).chineseDayString</td>
+<td style="text-align:left">农历日中文表示</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).chineseMonth</td>
+<td style="text-align:left">农历的月份</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).chineseMonthString</td>
+<td style="text-align:left">农历月份字符串</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).chineseYear</td>
+<td style="text-align:left">取农历年份</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).chineseYearString</td>
+<td style="text-align:left">中文纪年</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).chineseDateString</td>
+<td style="text-align:left">取农历日期表示法：农历一九九七年正月初五</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).chineseTwentyFourDay</td>
+<td style="text-align:left">当前日期后一个最近节气</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).constellation</td>
+<td style="text-align:left">计算指定日期的星座序号</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).animal</td>
+<td style="text-align:left">计算属相的索引，注意虽然属相是以农历年来区别的，但是目前在实际使用中是按公历来计算的 鼠年为1,其它类推</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).animalString</td>
+<td style="text-align:left">取属相字符串</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).ganZhiYearString</td>
+<td style="text-align:left">取农历年的干支表示法如 乙丑年</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).ganZhiMonthString</td>
+<td style="text-align:left">取干支的月表示字符串，注意农历的闰月不记干支</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).ganZhiDayString</td>
+<td style="text-align:left">取干支日表示法</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).ganZhiDateString</td>
+<td style="text-align:left">取当前日期的干支表示法如 甲子年乙丑月丙庚日</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).nextDay</td>
+<td style="text-align:left">取下一天</td>
+</tr>
+<tr>
+<td style="text-align:left">OdinChineseCalendar</td>
+<td style="text-align:left">OdinChineseCalendar(Date类型).pervDay</td>
+<td style="text-align:left">取前一天</td>
+</tr>
+</tbody>
+</table>
+<h2 id="getting-started"><a class="markdownIt-Anchor" href="#getting-started"></a> Getting Started</h2>
+<p>pub.dev发布地址：<a href="https://pub.dev/packages/odinutils">odinSam-Flutter - OdinUtils 工具类封装</a></p>
+]]></content>
+      <categories>
+        <category>Flutter</category>
+      </categories>
+      <tags>
+        <tag>Flutter</tag>
+        <tag>utils</tag>
       </tags>
   </entry>
 </search>
